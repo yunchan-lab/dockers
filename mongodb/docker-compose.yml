@@ -1,0 +1,66 @@
+version: '3.7'
+services:
+    key-gen:
+        build: ./key
+        volumes:
+            - keys:/keys
+        restart: 'no'
+    mongo1:
+        image: mongo
+        tty: true
+        container_name: mongo1
+        command: --replSet myReplicaSet --keyFile /keys/mongodb-keyfile
+        restart: always
+        ports:
+            - 27017:27017
+        depends_on:
+            - key-gen
+        volumes:
+            - ./data/mongo1:/data/db
+            - keys:/keys
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=admin
+            - MONGO_INITDB_ROOT_PASSWORD=1234
+        networks:
+            - mongoCluster
+    mongo2:
+        image: mongo
+        container_name: mongo2
+        command: --replSet myReplicaSet --keyFile /keys/mongodb-keyfile
+        restart: always
+        ports:
+            - 27018:27018
+        depends_on:
+            - key-gen
+        volumes:
+            - ./data/mongo2:/data/db
+            - keys:/keys
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=admin
+            - MONGO_INITDB_ROOT_PASSWORD=1234
+        networks:
+            - mongoCluster
+    mongo3:
+        image: mongo
+        container_name: mongo3
+        command: --replSet myReplicaSet --keyFile /keys/mongodb-keyfile
+        restart: always
+        ports:
+            - 27019:27019
+        depends_on:
+            - key-gen
+        volumes:
+            - ./data/mongo3:/data/db
+            - keys:/keys
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=admin
+            - MONGO_INITDB_ROOT_PASSWORD=1234
+        networks:
+            - mongoCluster
+
+volumes:
+    keys:
+
+networks:
+    mongoCluster:
+        external: true
